@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:votercircle_task/view/create_post.dart';
 import 'package:votercircle_task/view/post_card.dart';
 
 void main() => runApp(
@@ -83,11 +84,12 @@ class _MyHomePageState extends State<MyHomePage> {
           if(emails.text=='raghu'&&passwords.text=='12345'){
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => PostCard(
+              MaterialPageRoute(builder: (context) => Create_post(
                   image: "https://avatars2.githubusercontent.com/u/3234592?s=460&v=4",
-                  content: "Flutter is so amazing! I am loving it.I have been using this framework from past couple of weeks. Learning curve is high & it will be easy for you if you are coming from C# or Java background. It gives consistent UI across platforms and its blazing fast!. if you are into mobile app development, you should give it a try.",
+                  auth: "Yes",
                   name: "Raghavendra B N",
-                  time: "10 mins ago · ")),
+                  time: "10 mins ago · "
+              )),
             );
           }else{
             showInSnackBar("Invalid Login");
@@ -97,6 +99,34 @@ class _MyHomePageState extends State<MyHomePage> {
         padding: EdgeInsets.all(12),
         color: Colors.lightBlueAccent,
         child: Text('Log In', style: TextStyle(color: Colors.white)),
+      ),
+    );
+    final skipButton = Padding(
+      padding: EdgeInsets.symmetric(vertical: 16.0),
+      child: FlatButton(
+
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        onPressed: () {
+
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PostCard(
+                  image: "https://avatars2.githubusercontent.com/u/3234592?s=460&v=4",
+                  content: "Flutter is so amazing! I am loving it.I have been using this framework from past couple of weeks. Learning curve is high & it will be easy for you if you are coming from C# or Java background. It gives consistent UI across platforms and its blazing fast!. if you are into mobile app development, you should give it a try.",
+                  name: "Raghavendra B N",
+                  time: "10 mins ago · ",
+                  auth: "No",
+              )),
+            );
+
+
+        },
+        padding: EdgeInsets.all(12),
+        color: Colors.transparent,
+        child: Text('Skip', style: TextStyle(color: Colors.black)),
       ),
     );
 
@@ -120,6 +150,8 @@ class _MyHomePageState extends State<MyHomePage> {
             password,
             SizedBox(height: 24.0),
             loginButton,
+            SizedBox(height: 1.0),
+            skipButton,
 
           ],
         ),

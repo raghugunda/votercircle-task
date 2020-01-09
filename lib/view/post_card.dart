@@ -1,14 +1,18 @@
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:votercircle_task/model/Comment.dart';
 
 class PostCard extends StatefulWidget {
-  final image, content, name, time;
+  final image, content, name, time,auth;
 
   PostCard(
       {this.image,
       this.content,
       this.name,
       this.time,
+      this.auth,
      });
 
   @override
@@ -16,16 +20,20 @@ class PostCard extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<PostCard> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<Comment> commentsToPost = List<Comment>();
   bool visible_main_comments = false;
   bool visible_like = false;
   bool visible_reply_like = false;
   String comments_count='';
+  var jiffy3 = Jiffy()
+    ..startOf("seconds");
 
   var main_comments_controller = new TextEditingController();
   var reply_comments_controller = new TextEditingController();
 
   postComment() {
+
     setState(() {
       visible_main_comments = true;
     });
@@ -59,7 +67,9 @@ class _MyHomePageState extends State<PostCard> {
               onTap: () {
                 Comment cmt = Comment();
                 cmt.message = main_comments_controller.text;
+                main_comments_controller.clear();
                 cmt.Name = '${widget.name}';
+                cmt.created = jiffy3.fromNow();
 
 
                 //print(cmt.Name);
@@ -70,7 +80,7 @@ class _MyHomePageState extends State<PostCard> {
                   //main_comments_controller.clear();
                 });
                 FocusScope.of(context).requestFocus(FocusNode());
-                main_comments_controller.clear();
+
               },
               child: Icon(
                 Icons.send,
@@ -98,14 +108,32 @@ class _MyHomePageState extends State<PostCard> {
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.only(left: 20,top: 5),
-            child: Text(cmt.Name,style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
-              fontFamily: 'Regular',
-            ),),
+            child: Row(
+              children: <Widget>[
+                CircleAvatar(
+                  radius: 10.0,
+                  child: new Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: new DecorationImage(
+                        image: new NetworkImage('${widget.image}'),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 5),
+                  child: Text(cmt.Name,style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    fontFamily: 'Regular',
+                  ),textAlign: TextAlign.left,),
+                ),
+              ],
+            ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 25,top: 5),
+            padding: const EdgeInsets.only(left: 45,top: 5),
             child: Text(cmt.message,style: TextStyle(
              fontWeight: FontWeight.w400,
               fontSize: 15,
@@ -113,7 +141,9 @@ class _MyHomePageState extends State<PostCard> {
             ),),
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
+              Text(cmt.created),
               FlatButton(
                 color: Colors.transparent,
                 child: Text(cmt.isLiked==false?"Like":'You liked'),
@@ -145,14 +175,32 @@ class _MyHomePageState extends State<PostCard> {
                               children: <Widget>[
                                 Padding(
                                   padding: const EdgeInsets.only(left: 1,top: 5),
-                                  child: Text(cmt.Name,style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 16,
-                                    fontFamily: 'Regular',
-                                  ),textAlign: TextAlign.left,),
+                                  child: Row(
+                                    children: <Widget>[
+                                      CircleAvatar(
+                                        radius: 10.0,
+                                        child: new Container(
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            image: new DecorationImage(
+                                              image: new NetworkImage('${widget.image}'),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 5),
+                                        child: Text(cmt.Name,style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 16,
+                                          fontFamily: 'Regular',
+                                        ),textAlign: TextAlign.left,),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 1,top: 5,bottom: 20),
+                                  padding: const EdgeInsets.only(left: 30,top: 5,bottom: 20),
                                   child: Text(cmt.message,style: TextStyle(
                                     fontWeight: FontWeight.w400,
                                     fontSize: 15,
@@ -198,6 +246,7 @@ class _MyHomePageState extends State<PostCard> {
                                 Comment repCmt = Comment();
                                 repCmt.Name = '${widget.name}';
                                 repCmt.message = reply_comments_controller.text;
+                                repCmt.created = jiffy3.fromNow();
                                 setState(() {
 
                                   cmt.replayes.add(repCmt);
@@ -233,6 +282,7 @@ class _MyHomePageState extends State<PostCard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text("Timeline"),
         centerTitle: true,
@@ -310,7 +360,13 @@ class _MyHomePageState extends State<PostCard> {
                           ),
                         ),
                         GestureDetector(
-                            onTap: postComment,
+                            onTap: (){
+                              if('${widget.auth}'=='No'){
+                                showInSnackBar("Sorry...You need to login to add comments");
+                              }else{
+                                postComment();
+                              }
+                              },
                             child: new Text('$comments_count'+
                                 " Comments  " +
 
@@ -340,5 +396,8 @@ class _MyHomePageState extends State<PostCard> {
         ),
       ),
     );
+  }
+  void showInSnackBar(String value) {
+    _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(value)));
   }
 }
